@@ -2,16 +2,9 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Input({
-  className,
-  type,
-  label,
-  name,
-  ...props
-}: React.ComponentProps<"input"> & { label?: string; name: string }) {
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <div>
-      <label htmlFor={name}>{label}</label>
       <input
         type={type}
         data-slot="input"
@@ -21,7 +14,6 @@ function Input({
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
           className
         )}
-        name={name}
         {...props}
       />
     </div>
