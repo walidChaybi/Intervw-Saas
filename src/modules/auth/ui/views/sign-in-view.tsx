@@ -33,6 +33,7 @@ import {
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z
@@ -50,6 +51,8 @@ export const SignInView = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,27 +66,21 @@ export const SignInView = () => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      await authClient.signIn.email(
-        {
-          email: values.email,
-          password: values.password,
+    await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
         },
-        {
-          onSuccess: () => {
-            // Redirect will be handled by better-auth
-            window.location.href = "/";
-          },
-          onError: () => {
-            setError("Invalid email or password. Please try again.");
-            setIsLoading(false);
-          },
-        }
-      );
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-      setIsLoading(false);
-    }
+        onError: () => {
+          setError("Invalid email or password. Please try again.");
+          setIsLoading(false);
+        },
+      }
+    );
   };
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
@@ -134,9 +131,14 @@ export const SignInView = () => {
                   className="h-12 w-auto object-contain"
                 />
               </div>
-              <p className="text-lg text-slate-700 leading-relaxed font-medium">
-                Master your interview skills with AI-powered practice sessions
-              </p>
+
+              <h1 className="text-2xl font-extrabold leading-tight">
+                Master your interview skills with{" "}
+                <span className="bg-linear-to-r from-lime-400 via-emerald-400 to-teal-400 inline-block">
+                  AI-powered
+                </span>{" "}
+                practice sessions
+              </h1>
             </div>
 
             <div className="space-y-6">
