@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export const HomeView = () => {
   const { data: session } = authClient.useSession();
-
+  const router = useRouter();
   return (
     <div>
       <p>logged in as {session?.user?.email}</p>
@@ -16,7 +16,7 @@ export const HomeView = () => {
           authClient.signOut({
             fetchOptions: {
               onSuccess: () => {
-                redirect("/sign-in");
+                router.push("/sign-in");
               },
               onError: () => {
                 toast.error("Failed to sign out");
