@@ -4,6 +4,8 @@ import "./globals.css";
 import { BASE_SEO } from "@/lib/seo";
 import { SEOSchema } from "@/components/seo-schema";
 
+import { TRPCReactProvider } from "@/trpc/client";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -23,11 +25,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
-        <SEOSchema />
-        {children}
-      </body>
-    </html>
+    <TRPCReactProvider>
+      <html lang="en">
+        <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
+          <SEOSchema />
+          {children}
+        </body>
+      </html>
+    </TRPCReactProvider>
   );
 }
