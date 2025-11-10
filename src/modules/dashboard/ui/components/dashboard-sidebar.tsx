@@ -10,14 +10,24 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { VideoIcon, BotIcon, StarIcon, CreditCardIcon } from "lucide-react";
+import {
+  VideoIcon,
+  BotIcon,
+  StarIcon,
+  CreditCardIcon,
+  PanelLeftCloseIcon,
+  PanelLeftIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { DashboardUserButton } from "./dashboard-user-button";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const firstSection = [
   {
@@ -47,22 +57,93 @@ const secondSection = [
 
 export const DashboardSidebar = () => {
   const pathname = usePathname();
+  const { state, toggleSidebar, isMobile, open, setOpenMobile } = useSidebar();
+  const [isHoveringHeader, setIsHoveringHeader] = useState(false);
+
+  const isCollapsed = state === "collapsed" || !open;
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, pathname, setOpenMobile]);
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="text-sidebar-accent-foreground">
-        <Link href={"/"} className="flex items-center gap-2 px-2 py-3">
-          <Image
-            src={"/ai_interview_prepare.webp"}
-            alt="Logo"
-            width={180}
-            height={90}
-          />
-        </Link>
+        <div
+          className={cn(
+            "relative flex items-center px-2 py-3 transition-all duration-200",
+            !isMobile && "group",
+            isCollapsed ? "justify-center" : "justify-between"
+          )}
+          onMouseEnter={() => setIsHoveringHeader(true)}
+          onMouseLeave={() => setIsHoveringHeader(false)}
+        >
+          {/* Logo - changes based on collapsed state */}
+          {isCollapsed ? (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className={cn(
+                "flex items-center justify-center gap-2 transition-all duration-200 w-9 h-9 rounded-lg shrink-0 bg-white/10 p-1"
+              )}
+              aria-label="Expand sidebar"
+              style={{ cursor: "e-resize" }}
+            >
+              {isHoveringHeader ? (
+                <PanelLeftIcon className="size-5 text-white" />
+              ) : (
+                <Image
+                  src={"/intervw_mini.webp"}
+                  alt="Logo"
+                  width={180}
+                  height={90}
+                  className="transition-all duration-200"
+                />
+              )}
+            </button>
+          ) : (
+            <Link
+              href={"/"}
+              className="flex items-center gap-2 transition-all duration-200"
+              aria-label="Intervw home"
+            >
+              <Image
+                src={"/ai_interview_prepare.webp"}
+                alt="Logo"
+                width={180}
+                height={90}
+                className="transition-all duration-200"
+              />
+            </Link>
+          )}
+
+          {/* Toggle button - shows on hover when collapsed, always visible when expanded */}
+          {!isMobile && !isCollapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "size-9 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 shrink-0",
+                isCollapsed && "absolute right-2 top-1/2 -translate-y-1/2"
+              )}
+              onClick={toggleSidebar}
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              style={{
+                cursor: isCollapsed ? "e-resize" : "w-resize",
+              }}
+            >
+              <PanelLeftCloseIcon className="size-4" />
+            </Button>
+          )}
+        </div>
       </SidebarHeader>
+
       <div className="px-4 py-2">
         <Separator className="opacity-10 text-[#5D6B68]" />
       </div>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -71,6 +152,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
+                    tooltip={item.label}
                     className={cn(
                       "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 hover:text-white group",
                       pathname === item.href &&
@@ -90,9 +172,11 @@ export const DashboardSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <div className="px-4 py-2">
           <Separator className="opacity-10 text-[#5D6B68]" />
         </div>
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -100,6 +184,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
+                    tooltip={item.label}
                     className={cn(
                       "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 hover:text-white group",
                       pathname === item.href &&
@@ -120,8 +205,9 @@ export const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter className="text-white">
-        <DashboardUserButton />
+        {!isCollapsed && <DashboardUserButton />}
       </SidebarFooter>
     </Sidebar>
   );
