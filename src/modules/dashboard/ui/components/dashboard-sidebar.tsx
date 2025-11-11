@@ -148,27 +148,31 @@ export const DashboardSidebar = () => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {firstSection.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.label}
-                    className={cn(
-                      "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 hover:text-white group",
-                      pathname === item.href &&
-                        "bg-linear-to-r/oklch border-[#5D6B68]/10 text-white"
-                    )}
-                    isActive={pathname === item.href}
-                  >
-                    <Link href={item.href} className="group-hover:text-white">
-                      <item.icon className="size-5 group-hover:text-white" />
-                      <span className="text-sm font-medium tracking-tight group-hover:text-white">
-                        {item.label}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {firstSection.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.label}
+                      className={cn(
+                        "group relative h-10 border border-transparent px-3 text-white/75 hover:text-white/90 transition-all duration-200 hover:border-[#5D6B68]/10 hover:bg-linear-to-r/oklch from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 data-[active=true]:text-white/90 data-[active=true]:hover:text-white",
+                        isActive &&
+                          "bg-linear-to-r/oklch border-[#5D6B68]/10 before:absolute before:inset-y-1 before:left-0 before:w-1 before:rounded-full before:bg-[#39ff14] before:shadow-[0_0_12px_3px_rgba(57,255,20,0.45)]"
+                      )}
+                      isActive={isActive}
+                    >
+                      <Link
+                        href={item.href}
+                        className="flex w-full items-center gap-3 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-data-[active=true]:text-white/95"
+                      >
+                        <item.icon className="size-5 text-white/80 transition-colors duration-200 group-data-[active=true]:text-white" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -180,27 +184,31 @@ export const DashboardSidebar = () => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondSection.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.label}
-                    className={cn(
-                      "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 hover:text-white group",
-                      pathname === item.href &&
-                        "bg-linear-to-r/oklch border-[#5D6B68]/10 text-white"
-                    )}
-                    isActive={pathname === item.href}
-                  >
-                    <Link href={item.href} className="group-hover:text-white">
-                      <item.icon className="size-5 group-hover:text-white" />
-                      <span className="text-sm font-medium tracking-tight group-hover:text-white">
-                        {item.label}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {secondSection.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.label}
+                      className={cn(
+                        "group relative h-10 border border-transparent px-3 text-white/75 hover:text-white/90 transition-all duration-200 hover:border-[#5D6B68]/10 hover:bg-linear-to-r/oklch from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50 data-[active=true]:text-white/90 data-[active=true]:hover:text-white",
+                        isActive &&
+                          "bg-linear-to-r/oklch border-[#5D6B68]/10 before:absolute before:inset-y-1 before:left-0 before:w-1 before:rounded-full before:bg-[#39ff14] before:shadow-[0_0_12px_3px_rgba(57,255,20,0.45)]"
+                      )}
+                      isActive={isActive}
+                    >
+                      <Link
+                        href={item.href}
+                        className="flex w-full items-center gap-3 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-data-[active=true]:text-white/95"
+                      >
+                        <item.icon className="size-5 text-white/80 transition-colors duration-200 group-data-[active=true]:text-white" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
