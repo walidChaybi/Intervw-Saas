@@ -163,3 +163,10 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled){
+    cursor: pointer;
+  }
+}
