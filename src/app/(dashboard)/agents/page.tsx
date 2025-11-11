@@ -6,24 +6,42 @@ import { dehydrate } from "@tanstack/react-query";
 import { LoadingState } from "@/components/loading-state";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorState } from "@/components/error-state";
+import AgentsListHeader from "@/modules/agents/ui/views/components/agents-list-header";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { redirect, RedirectType } from "next/navigation";
 
 const AgentsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in", RedirectType.push);
+  }
+
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
+
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense
-        fallback={<LoadingState title="Loading" description="Loading agents" />}
-      >
-        <ErrorBoundary
+    <>
+      <AgentsListHeader />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense
           fallback={
-            <ErrorState title="Error" description="Error loading agents" />
+            <LoadingState title="Loading" description="Loading agents" />
           }
         >
-          <AgentsView />
-        </ErrorBoundary>
-      </Suspense>
-    </HydrationBoundary>
+          <ErrorBoundary
+            fallback={
+              <ErrorState title="Error" description="Error loading agents" />
+            }
+          >
+            <AgentsView />
+          </ErrorBoundary>
+        </Suspense>
+      </HydrationBoundary>
+    </>
   );
 };
 

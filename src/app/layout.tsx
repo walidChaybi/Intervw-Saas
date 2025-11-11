@@ -5,6 +5,7 @@ import { BASE_SEO } from "@/lib/seo";
 import { SEOSchema } from "@/components/seo-schema";
 
 import { TRPCReactProvider } from "@/trpc/client";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
           <SEOSchema />
+          <Toaster />
           {children}
         </body>
       </html>
