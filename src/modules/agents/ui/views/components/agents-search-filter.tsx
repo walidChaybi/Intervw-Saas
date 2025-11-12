@@ -17,7 +17,6 @@ export const AgentsSearchFilter = () => {
         onChange={(event) =>
           setFilters({
             search: event.target.value,
-            page: DEFAULT_PAGE,
           })
         }
       />

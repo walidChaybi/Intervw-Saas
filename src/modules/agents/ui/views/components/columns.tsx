@@ -39,7 +39,9 @@ export const columns: ColumnDef<AgentGetMany>[] = [
     cell: ({ row }) => {
       return (
         <Badge variant="outline" className="flex items-center gap-x-2">
-          <VideoIcon className="text-blue-700" />5 meetings
+          <VideoIcon className="text-blue-700" />
+          {row.original.meetingCount}{" "}
+          {row.original.meetingCount === 1 ? "meeting" : "meetings"}
         </Badge>
       );
     },

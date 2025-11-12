@@ -8,31 +8,37 @@ import { EmptyState } from "@/components/empty-state";
 import { Bot, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNewAgentDialog } from "./components/new-agent-dialog-context";
+import { useAgentsFilters } from "../../hooks/use-agents-filters";
+import { DataPagination } from "@/components/data-pagination";
 
 export const AgentsView = () => {
+  const [filters, setFilters] = useAgentsFilters();
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
+  const { data } = useSuspenseQuery(
+    trpc.agents.getMany.queryOptions({
+      ...filters,
+    })
+  );
   const { openDialog } = useNewAgentDialog();
 
-  if (!data || data.length === 0) {
+  if (!data || data.items.length === 0) {
     return (
       <EmptyState
+        image="/empty.png"
         title="No agents yet"
         description="Get started by creating your first AI agent. Agents can help you with interviews, practice sessions, and more."
-        icon={<Bot className="size-9 text-primary/60" strokeWidth={2.2} />}
-        action={
-          <Button onClick={openDialog} className="gap-2">
-            <Plus className="size-4" />
-            Create Your First Agent
-          </Button>
-        }
       />
     );
   }
 
   return (
     <div className="flex-1 pb-4 px-4 md:px-8 flex flex-col gap-y-4">
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={data.items} />
+      <DataPagination
+        page={filters.page}
+        totalPages={data.totalPages}
+        onPageChange={(page) => setFilters({ page })}
+      />
     </div>
   );
 };
