@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { PlusIcon, XCircleIcon } from "lucide-react";
 
 import { DEFAULT_PAGE } from "@/constants";
@@ -10,10 +9,11 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { NewAgentDialog } from "./new-agent-dialog";
 import { AgentsSearchFilter } from "./agents-search-filter";
 import { useAgentsFilters } from "../../../hooks/use-agents-filters";
+import { useNewAgentDialog } from "./new-agent-dialog-context";
 
 const AgentsListHeader = () => {
   const [filters, setFilters] = useAgentsFilters();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { isOpen, setIsOpen, openDialog } = useNewAgentDialog();
 
   const isAnyFilterModified = !!filters.search;
 
@@ -26,11 +26,11 @@ const AgentsListHeader = () => {
 
   return (
     <>
-      <NewAgentDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+      <NewAgentDialog open={isOpen} onOpenChange={setIsOpen} />
       <div className="flex flex-col gap-y-4 px-4 py-4 md:px-8">
         <div className="flex items-center justify-between">
           <h5 className="text-xl font-medium">My Agents</h5>
-          <Button onClick={() => setIsDialogOpen(true)}>
+          <Button onClick={openDialog}>
             <PlusIcon />
             New Agent
           </Button>

@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/loading-state";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorState } from "@/components/error-state";
 import AgentsListHeader from "@/modules/agents/ui/views/components/agents-list-header";
+import { NewAgentDialogProvider } from "@/modules/agents/ui/views/components/new-agent-dialog-context";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect, RedirectType } from "next/navigation";
@@ -24,7 +25,7 @@ const AgentsPage = async () => {
   void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
 
   return (
-    <>
+    <NewAgentDialogProvider>
       <AgentsListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense
@@ -41,7 +42,7 @@ const AgentsPage = async () => {
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>
-    </>
+    </NewAgentDialogProvider>
   );
 };
 
