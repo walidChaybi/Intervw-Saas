@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { useTRPC } from "@/trpc/client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +19,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useTRPC } from "@/trpc/client";
-
-import { agentInsertSchema } from "../../../schemas";
-import { AgentGetOne } from "@/modules/agents/types";
 import { GeneratedAvatar } from "@/components/generated-avatar";
+
+import { AgentGetOne } from "@/modules/agents/types";
+import { agentInsertSchema } from "../../../schemas";
 
 type AgentFormValues = z.infer<typeof agentInsertSchema>;
 
@@ -41,25 +42,38 @@ export const AgentForm = ({
 
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
-      onSuccess: async (createdAgent) => {
+      onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.agents.getMany.queryOptions({})
+          trpc.agents.getMany.queryOptions({}),
         );
-
-        if (initialValues?.id) {
-          await queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ id: initialValues.id })
-          );
-        }
-
-        toast.success(`Agent ${createdAgent.name} created`);
 
         onSuccess?.();
       },
       onError: (error) => {
         toast.error(error.message);
       },
-    })
+    }),
+  );
+
+  const updateAgent = useMutation(
+    trpc.agents.update.mutationOptions({
+      onSuccess: async (updatedAgent) => {
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({}),
+        );
+
+        if (updatedAgent?.id) {
+          await queryClient.invalidateQueries(
+            trpc.agents.getOne.queryOptions({ id: updatedAgent.id }),
+          );
+        }
+
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
   );
 
   const form = useForm<AgentFormValues>({
@@ -70,15 +84,24 @@ export const AgentForm = ({
     },
   });
 
-  const isEdit = !!initialValues?.id;
-  const isPending = createAgent.isPending;
+  const isEdit = Boolean(initialValues?.id);
+  const isPending = createAgent.isPending || updateAgent.isPending;
 
   const onSubmit = (values: AgentFormValues) => {
     if (isEdit) {
-      console.log("updateAgent", values);
-    } else {
-      createAgent.mutate(values);
+      if (!initialValues?.id) {
+        toast.error("Missing agent id");
+        return;
+      }
+
+      updateAgent.mutate({
+        ...values,
+        id: initialValues.id,
+      });
+      return;
     }
+
+    createAgent.mutate(values);
   };
 
   return (
@@ -87,11 +110,11 @@ export const AgentForm = ({
         <GeneratedAvatar
           seed={form.watch("name")}
           variant="botttsNeutral"
-          className="border size-16"
+          className="size-16 border"
         />
         <FormField
-          name="name"
           control={form.control}
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -103,40 +126,34 @@ export const AgentForm = ({
           )}
         />
         <FormField
-          name="instructions"
           control={form.control}
+          name="instructions"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Instructions</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
-                  placeholder="Describe how the agent should behave during meetings."
+                  placeholder="Describe how the agent should behave during interviews."
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="flex justify-end gap-x-2">
+        <div className="flex justify-between gap-x-2">
           {onCancel && (
             <Button
+              type="button"
               variant="ghost"
               disabled={isPending}
-              type="button"
               onClick={() => onCancel()}
             >
               Cancel
             </Button>
           )}
           <Button disabled={isPending} type="submit">
-            {isEdit
-              ? isPending
-                ? "Updating..."
-                : "Update"
-              : isPending
-              ? "Creating..."
-              : "Create"}
+            {isEdit ? "Update" : "Create"}
           </Button>
         </div>
       </form>

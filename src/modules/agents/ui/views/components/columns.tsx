@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import { Badge } from "@/components/ui/badge";
 import { AgentGetMany } from "@/modules/agents/types";
@@ -12,24 +13,27 @@ export const columns: ColumnDef<AgentGetMany>[] = [
     header: "Agent name",
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col gap-y-1">
+        <Link
+          href={`/agents/${row.original.id}`}
+          className="group flex flex-col gap-y-1 rounded-md px-1 py-1 transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
+        >
           <div className="flex items-center gap-x-2">
             <GeneratedAvatar
               seed={row.original.name}
               variant="botttsNeutral"
               className="size-6"
             />
-            <span className="font-semibold capitalize">
+            <span className="font-semibold capitalize group-hover:underline">
               {row.original.name}
             </span>
           </div>
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2 text-muted-foreground">
             <CornerDownRightIcon className="size-3" />
-            <span className="text-sm text-muted-foreground max-w-[200px] truncate">
+            <span className="text-sm max-w-[200px] truncate">
               {row.original.instructions}
             </span>
           </div>
-        </div>
+        </Link>
       );
     },
   },
