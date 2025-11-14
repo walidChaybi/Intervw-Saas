@@ -1,0 +1,1 @@
+CREATE TYPE "public"."meeting_status" AS ENUM('upcoming', 'completed', 'cancelled', 'processing', 'active');

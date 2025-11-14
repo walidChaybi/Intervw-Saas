@@ -38,14 +38,14 @@ export const columns: ColumnDef<AgentGetMany>[] = [
     },
   },
   {
-    accessorKey: "meetingCount",
-    header: "Meetings",
+    accessorKey: "interviewCount",
+    header: "Interviews",
     cell: ({ row }) => {
       return (
         <Badge variant="outline" className="flex items-center gap-x-2">
           <VideoIcon className="text-blue-700" />
-          {row.original.meetingCount}{" "}
-          {row.original.meetingCount === 1 ? "meeting" : "meetings"}
+          {row.original.interviewCount}{" "}
+          {row.original.interviewCount === 1 ? "interview" : "interviews"}
         </Badge>
       );
     },

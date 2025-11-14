@@ -20,7 +20,7 @@ export const agentRouter = createTRPCRouter({
       const [existingAgent] = await db
         .select({
           ...getTableColumns(agents),
-          meetingCount: sql<number>`5`,
+          interviewCount: sql<number>`5`,
         })
         .from(agents)
         .where(
@@ -58,7 +58,7 @@ export const agentRouter = createTRPCRouter({
       const data = await db
         .select({
           ...getTableColumns(agents),
-          meetingCount: sql<number>`5`,
+          interviewCount: sql<number>`5`,
         })
         .from(agents)
         .where(
@@ -126,7 +126,7 @@ export const agentRouter = createTRPCRouter({
         )
         .returning({
           ...getTableColumns(agents),
-          meetingCount: sql<number>`5`,
+          interviewCount: sql<number>`5`,
         });
 
       if (!updatedAgent) {

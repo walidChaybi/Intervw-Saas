@@ -33,26 +33,26 @@ export const AgentIdView = ({ agentId }: AgentIdViewProps) => {
   const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false);
 
   const { data } = useSuspenseQuery(
-    trpc.agents.getOne.queryOptions({ id: agentId }),
+    trpc.agents.getOne.queryOptions({ id: agentId })
   );
 
   const removeAgent = useMutation(
     trpc.agents.remove.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.agents.getMany.queryOptions({}),
+          trpc.agents.getMany.queryOptions({})
         );
         router.push("/agents");
       },
       onError: (error) => {
         toast.error(error.message);
       },
-    }),
+    })
   );
 
   const [RemoveConfirmation, confirmRemove] = useConfirm(
     "Delete agent",
-    `This action will remove ${data.meetingCount} associated meetings`,
+    `This action will remove ${data.interviewCount} associated interviews`
   );
 
   const handleRemoveAgent = async () => {
@@ -99,8 +99,8 @@ export const AgentIdView = ({ agentId }: AgentIdViewProps) => {
               className="flex items-center gap-x-2 [&>svg]:size-4"
             >
               <VideoIcon className="text-blue-700" />
-              {data.meetingCount}{" "}
-              {data.meetingCount === 1 ? "meeting" : "meetings"}
+              {data.interviewCount}{" "}
+              {data.interviewCount === 1 ? "interview" : "interviews"}
             </Badge>
             <div className="flex flex-col gap-y-4">
               <p className="text-lg font-medium">Instructions</p>
@@ -115,10 +115,7 @@ export const AgentIdView = ({ agentId }: AgentIdViewProps) => {
 
 export const AgentIdViewLoading = () => {
   return (
-    <LoadingState
-      title="Loading agent"
-      description="Fetching agent details"
-    />
+    <LoadingState title="Loading agent" description="Fetching agent details" />
   );
 };
 
