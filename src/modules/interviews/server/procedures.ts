@@ -11,6 +11,7 @@ import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
 } from "@/constants";
+import { interviewInsertSchema, interviewUpdateSchema } from "../schemas";
 
 export const interviewRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -86,5 +87,49 @@ export const interviewRouter = createTRPCRouter({
         totalPages,
       };
     }),
-  
+
+    create: protectedProcedure
+    .input(interviewInsertSchema)
+    .mutation(async ({ input, ctx }) => {
+
+      const [createdInterview] = await db
+        .insert(interviews)
+        .values({
+          ...input,
+          userId: ctx.session.user.id,
+        })
+        .returning();
+
+      return createdInterview;
+    }),
+
+    update: protectedProcedure
+    .input(interviewUpdateSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id, agentId } = input;
+
+      const [updatedInterview] = await db
+        .update(interviews)
+        .set({
+          agentId,
+        })
+        .where(
+          and(
+            eq(interviews.id, id),
+            eq(interviews.userId, ctx.session.user.id),
+          ),
+        )
+        .returning({
+          ...getTableColumns(interviews), 
+        });
+
+      if (!updatedInterview) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Interview not found",
+        });
+      }
+
+      return updatedInterview;
+    }),
 });

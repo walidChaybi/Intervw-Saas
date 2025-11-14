@@ -53,5 +53,3 @@ const AgentsListHeader = () => {
 };
 
 export default AgentsListHeader;
-
-export { AgentsListHeader };

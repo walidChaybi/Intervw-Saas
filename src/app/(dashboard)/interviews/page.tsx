@@ -5,33 +5,48 @@ import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorState } from "@/components/error-state";
+import InterviewsListHeader from "@/modules/interviews/ui/components/interviews-list-header";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect, RedirectType } from "next/navigation";
 
 const InterviewsPage = async () => {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery(trpc.interviews.getMany.queryOptions({}));
 
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in", RedirectType.push);
+  }
+
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense
-        fallback={
-          <LoadingState
-            title="Loading interviews"
-            description="Please wait while we load the interviews"
-          />
-        }
-      >
-        <ErrorBoundary
+    <>
+      <InterviewsListHeader />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense
           fallback={
-            <ErrorState
-              title="Error loading interviews"
-              description="Please try again later"
+            <LoadingState
+              title="Loading interviews"
+              description="Please wait while we load the interviews"
             />
           }
         >
-          <InterviewsView />
-        </ErrorBoundary>
-      </Suspense>
-    </HydrationBoundary>
+          <ErrorBoundary
+            fallback={
+              <ErrorState
+                title="Error loading interviews"
+                description="Please try again later"
+              />
+            }
+          >
+            <InterviewsView />
+          </ErrorBoundary>
+        </Suspense>
+      </HydrationBoundary>
+    </>
   );
 };
 
