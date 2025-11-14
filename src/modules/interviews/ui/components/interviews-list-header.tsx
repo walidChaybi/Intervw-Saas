@@ -6,7 +6,7 @@ import { DEFAULT_PAGE } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useState } from "react";
-import { NewMeetingDialog } from "./new-meeting-dialog";
+import { NewMeetingDialog } from "./new-interview-dialog";
 
 const InterviewsListHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
