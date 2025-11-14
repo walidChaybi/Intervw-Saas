@@ -57,8 +57,11 @@ export const interviewRouter = createTRPCRouter({
       const data = await db
         .select({
           ...getTableColumns(interviews),
+          agent: agents,
+          duration: sql<number>`EXTRACT(EPOCH FROM (ended_at - started_at))`.as("duration"),
         })
         .from(interviews)
+        .innerJoin(agents, eq(interviews.agentId, agents.id))
         .where(
           and(
             eq(interviews.userId, ctx.session.user.id),
@@ -72,6 +75,7 @@ export const interviewRouter = createTRPCRouter({
       const [total] = await db
         .select({ count: count() })
         .from(interviews)
+        .innerJoin(agents, eq(interviews.agentId, agents.id))
         .where(
           and(
             eq(interviews.userId, ctx.session.user.id),

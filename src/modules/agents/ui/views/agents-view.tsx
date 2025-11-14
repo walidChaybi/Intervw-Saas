@@ -3,13 +3,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { columns } from "./components/columns";
-import { DataTable } from "./components/data-table";
 import { EmptyState } from "@/components/empty-state";
-import { Bot, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useNewAgentDialog } from "./components/new-agent-dialog-context";
 import { useAgentsFilters } from "../../hooks/use-agents-filters";
 import { DataPagination } from "@/components/data-pagination";
+import DataTable from "@/components/data-table";
 
 export const AgentsView = () => {
   const [filters, setFilters] = useAgentsFilters();
