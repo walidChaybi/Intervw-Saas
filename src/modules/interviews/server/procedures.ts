@@ -12,6 +12,7 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { interviewInsertSchema, interviewUpdateSchema } from "../schemas";
+import { InterviewStatus } from "../types";
 
 export const interviewRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -49,10 +50,12 @@ export const interviewRouter = createTRPCRouter({
           .max(MAX_PAGE_SIZE)
           .default(DEFAULT_PAGE_SIZE),
         search: z.string().nullish(),
+        agentId: z.string().nullish(),
+        status: z.enum([InterviewStatus.UPCOMING, InterviewStatus.ACTIVE, InterviewStatus.COMPLETED, InterviewStatus.CANCELLED, InterviewStatus.PROCESSING]).nullish(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { page, pageSize, search } = input;
+      const { page, pageSize, search, status, agentId, } = input;
 
       const data = await db
         .select({
@@ -66,6 +69,8 @@ export const interviewRouter = createTRPCRouter({
           and(
             eq(interviews.userId, ctx.session.user.id),
             search ? ilike(interviews.name, `%${search}%`) : undefined,
+            status ? eq(interviews.status, status) : undefined,
+            agentId ? eq(interviews.agentId, agentId) : undefined,
           ),
         )
         .orderBy(desc(interviews.createdAt), desc(interviews.id))
@@ -80,6 +85,8 @@ export const interviewRouter = createTRPCRouter({
           and(
             eq(interviews.userId, ctx.session.user.id),
             search ? ilike(interviews.name, `%${search}%`) : undefined,
+            status ? eq(interviews.status, status) : undefined,
+            agentId ? eq(interviews.agentId, agentId) : undefined,
           ),
         );
 
