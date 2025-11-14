@@ -8,5 +8,6 @@ export const agentInsertSchema = z.object({
 });
 
 export const agentUpdateSchema = agentInsertSchema.extend({
-  id: z.string(),
+  id: z.string()
+    .min(1, { message: "ID is required" }),
 });

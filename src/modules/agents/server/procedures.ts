@@ -39,6 +39,7 @@ export const agentRouter = createTRPCRouter({
 
       return existingAgent;
     }),
+
   getMany: protectedProcedure
     .input(
       z.object({
@@ -88,6 +89,7 @@ export const agentRouter = createTRPCRouter({
         totalPages,
       };
     }),
+
   create: protectedProcedure
     .input(agentInsertSchema)
     .mutation(async ({ input, ctx }) => {
@@ -104,6 +106,7 @@ export const agentRouter = createTRPCRouter({
 
       return createdAgent;
     }),
+
   update: protectedProcedure
     .input(agentUpdateSchema)
     .mutation(async ({ input, ctx }) => {
@@ -135,6 +138,7 @@ export const agentRouter = createTRPCRouter({
 
       return updatedAgent;
     }),
+    
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
