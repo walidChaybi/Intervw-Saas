@@ -81,7 +81,13 @@ export const InterviewIdView = ({ interviewId }: Props) => {
         {isCompleted && <CompletedState data={data} />}
         {isCancelled && <CancelledState />}
         {isProcessing && <ProcessingState interviewId={interviewId} />}
-        {isUpcoming && <UpcomingState interviewId={interviewId} />}
+        {isUpcoming && (
+          <UpcomingState
+            interviewId={interviewId}
+            onCancelInterview={() => {}}
+            isCancelling={removeInterview.isPending}
+          />
+        )}
       </div>
     </>
   );

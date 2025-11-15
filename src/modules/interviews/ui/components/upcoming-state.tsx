@@ -6,9 +6,15 @@ import { EmptyState } from "@/components/empty-state";
 
 interface Props {
   interviewId: string;
+  onCancelInterview: () => void;
+  isCancelling: boolean;
 }
 
-export const UpcomingState = ({ interviewId }: Props) => {
+export const UpcomingState = ({
+  interviewId,
+  onCancelInterview,
+  isCancelling,
+}: Props) => {
   return (
     <div className="bg-white rounded-lg px-4 py-5 flex flex-col gap-y-8 items-center justify-center">
       <EmptyState
@@ -17,10 +23,23 @@ export const UpcomingState = ({ interviewId }: Props) => {
         description="Once you start this interview, a summary will appear here"
       />
       <div className="flex flex-col-reverse lg:flex-row lg:justify-center items-center gap-2 w-full">
-        <Button asChild className="w-full lg:w-auto">
-          <Link href={`/interviews/${interviewId}`}>
+        <Button
+          asChild
+          className="w-full lg:w-auto"
+          variant="outline"
+          onClick={onCancelInterview}
+          disabled={isCancelling}
+        >
+          <Link href={`/call/${interviewId}`}>
             <VideoIcon />
-            Start interview
+            Cancel interview
+          </Link>
+        </Button>
+
+        <Button disabled={isCancelling} asChild className="w-full lg:w-auto">
+          <Link href={`/call/${interviewId}`}>
+            <VideoIcon />
+            Join interview
           </Link>
         </Button>
       </div>
