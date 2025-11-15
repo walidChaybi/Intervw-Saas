@@ -12,6 +12,11 @@ import { useTRPC } from "@/trpc/client";
 import { InterviewIdViewHeader } from "../components/interview-id-view-header";
 import { useConfirm } from "@/hooks/use-confirm";
 import { EditInterviewDialog } from "../components/edit-interview-dialog";
+import { ActiveState } from "../components/active-state";
+import { CompletedState } from "../components/completed-state";
+import { CancelledState } from "../components/cancelled-state";
+import { ProcessingState } from "../components/processing-state";
+import { UpcomingState } from "../components/upcoming-state";
 
 interface Props {
   interviewId: string;
@@ -51,6 +56,12 @@ export const InterviewIdView = ({ interviewId }: Props) => {
     trpc.interviews.getOne.queryOptions({ id: interviewId })
   );
 
+  const isActive = data.status === "active";
+  const isCompleted = data.status === "completed";
+  const isCancelled = data.status === "cancelled";
+  const isProcessing = data.status === "processing";
+  const isUpcoming = data.status === "upcoming";
+
   return (
     <>
       <EditInterviewDialog
@@ -66,7 +77,11 @@ export const InterviewIdView = ({ interviewId }: Props) => {
           onEdit={() => setIsEditOpen(true)}
           onRemove={handleRemoveInterview}
         />
-        <h1 className="text-2xl font-bold">Interview {interviewId}</h1>
+        {isActive && <ActiveState interviewId={interviewId} />}
+        {isCompleted && <CompletedState data={data} />}
+        {isCancelled && <CancelledState />}
+        {isProcessing && <ProcessingState interviewId={interviewId} />}
+        {isUpcoming && <UpcomingState interviewId={interviewId} />}
       </div>
     </>
   );
