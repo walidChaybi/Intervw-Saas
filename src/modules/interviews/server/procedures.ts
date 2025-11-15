@@ -13,8 +13,33 @@ import {
 } from "@/constants";
 import { interviewInsertSchema, interviewUpdateSchema } from "../schemas";
 import { InterviewStatus } from "../types";
+import { streamVideo } from "@/lib/stream-video";
+import { generateAvatarUri } from "@/lib/avatar";
 
 export const interviewRouter = createTRPCRouter({
+
+  generateToken: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      await streamVideo.upsertUsers([{
+        id: ctx.session.user.id,
+        name: ctx.session.user.name,
+        role : "admin",
+        image: ctx.session.user.image ?? generateAvatarUri({ seed: ctx.session.user.name, variant: "initials" }),
+      }]);
+
+      const expirationTime = Math.floor( Date.now() / 1000 ) + 60 * 60 ; // 30 days
+      const issuedAt = Math.floor( Date.now() / 1000 ) - 60;
+
+      const token = streamVideo.generateUserToken( {
+        user_id: ctx.session.user.id,
+        expiration_time: expirationTime,
+        validity_in_seconds: issuedAt 
+      }); 
+
+      return token;
+    }),
+
+
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -113,6 +138,50 @@ export const interviewRouter = createTRPCRouter({
           userId: ctx.session.user.id,
         })
         .returning();
+
+        const call = streamVideo.video.call("default", createdInterview.id);
+        await call.create({
+          data: { 
+            created_by_id : ctx.session.user.id,
+            custom : {
+              interviewId: createdInterview.id,
+              interviewName: createdInterview.name,
+            },
+            settings_override: {
+              transcription :{
+                language: "en",
+                mode: "auto-on",
+                closed_caption_mode: "auto-on",
+                
+              },
+              recording : {
+                mode: "auto-on",
+                quality: "1080p",
+              },
+            }
+          }
+        });
+
+        const [existingAgent] = await db
+          .select()
+          .from(agents)
+          .where(eq(agents.id, createdInterview.agentId));
+
+          if (!existingAgent) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Agent not found",
+            });
+          }
+
+          await streamVideo.upsertUsers([
+            {
+              id: existingAgent.id,
+              name: existingAgent.name,
+              role: "user",
+              image: generateAvatarUri({ seed: existingAgent.name, variant: "botttsNeutral" }),
+            }
+          ])
 
       return createdInterview;
     }),
