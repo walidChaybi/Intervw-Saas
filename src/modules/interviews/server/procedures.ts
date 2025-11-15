@@ -21,8 +21,11 @@ export const interviewRouter = createTRPCRouter({
       const [existingInterview] = await db
         .select({
           ...getTableColumns(interviews),
+          agent: agents,
+          duration: sql<number>`EXTRACT(EPOCH FROM (ended_at - started_at))`.as("duration"),
         })
         .from(interviews)
+        .innerJoin(agents, eq(interviews.agentId, agents.id))
         .where(
           and(
             eq(interviews.id, input.id),
@@ -114,15 +117,16 @@ export const interviewRouter = createTRPCRouter({
       return createdInterview;
     }),
 
-    update: protectedProcedure
+  update: protectedProcedure
     .input(interviewUpdateSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id, agentId } = input;
+      const { id, agentId, name } = input;
 
       const [updatedInterview] = await db
         .update(interviews)
         .set({
           agentId,
+          name,
         })
         .where(
           and(
@@ -142,5 +146,32 @@ export const interviewRouter = createTRPCRouter({
       }
 
       return updatedInterview;
+    }),
+
+    remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { id } = input;
+
+      const [removedInterview] = await db
+        .delete(interviews)
+        .where(
+          and(
+            eq(interviews.id, id),
+            eq(interviews.userId, ctx.session.user.id),
+          ),
+        )
+        .returning({
+          ...getTableColumns(interviews), 
+        });
+
+      if (!removedInterview) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Interview not found",
+        });
+      }
+
+      return removedInterview;
     }),
 });
