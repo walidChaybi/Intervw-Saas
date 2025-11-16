@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
 import { ErrorState } from "@/components/error-state";
+import { CallProvider } from "../components/call-provider";
 
 interface Props {
   interviewId: string;
@@ -26,5 +27,5 @@ export const CallView = ({ interviewId }: Props) => {
     );
   }
 
-  return <div>{JSON.stringify(data)}</div>;
+  return <CallProvider interviewId={interviewId} interviewName={data.name} />;
 };
