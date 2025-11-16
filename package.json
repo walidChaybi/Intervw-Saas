@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:push": "npx drizzle-kit push",
-    "db:studio": "npx drizzle-kit studio"
+    "db:studio": "npx drizzle-kit studio",
+    "dev:webhook": "ngrok http --url=balancingly-disinclined-aubri.ngrok-free.dev 3000"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.4",

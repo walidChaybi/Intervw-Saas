@@ -18,7 +18,7 @@ export const ActiveState = ({ interviewId }: Props) => {
       />
       <div className="flex flex-col-reverse lg:flex-row lg:justify-center items-center gap-2 w-full">
         <Button asChild className="w-full lg:w-auto">
-          <Link href={`/interviews/${interviewId}`}>
+          <Link href={`/call/${interviewId}`}>
             <VideoIcon />
             Join interview
           </Link>
