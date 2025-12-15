@@ -23,12 +23,35 @@ const OngletActe: React.FC<IOngletActeProps> = ({ estActif }) => {
   const { champActif, onTexteSelectionne } = useExtractionTexte();
   const [contenuActe, setContenuActe] = useState<string | null>(null);
   const [acte, setActe] = useState<FicheActe | null>(null);
+  const [corpsTexteExtrait, setCorpsTexteExtrait] = useState<string | null>(null);
   const [afficherCorpsTexte, setAfficherCorpsTexte] = useState<boolean>(false);
   const [copie, setCopie] = useState<boolean>(false);
   const [highlight, setHighlight] = useState<boolean>(false);
 
   const { appelApi: recupererDonneesCompositionActeTexte } = useFetchApi(CONFIG_GET_DONNEES_POUR_COMPOSITION_ACTE_TEXTE_MIS_A_JOUR);
   const { appelApi: getResumeActe } = useFetchApi(CONFIG_GET_RESUME_ACTE);
+
+  /**
+   * Extrait le corpsTexte depuis les données de composition
+   * Structure: donneesJson est déjà le contenu de "data" (une string JSON)
+   * Exemple: "{\"texte_corps_acte\": \"Nom: ...\\nPrénoms: ...\"}"
+   */
+  const extraireCorpsTexte = useCallback((donneesJson: string): string | null => {
+    try {
+      // donneesJson est déjà la string JSON interne (le "data" de la réponse API)
+      const donnees = JSON.parse(donneesJson);
+      
+      // Extraire texte_corps_acte
+      const texte = donnees?.texte_corps_acte;
+      
+      if (texte && typeof texte === "string") {
+        return texte;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // Flash effect when a field is active
   useEffect(() => {
@@ -71,6 +94,13 @@ const OngletActe: React.FC<IOngletActeProps> = ({ estActif }) => {
     recupererDonneesCompositionActeTexte({
       parametres: { path: { idActe } },
       apresSucces: donneesPourCompositionActeTexte => {
+        // Extraire le corpsTexte pour l'affichage texte
+        const texteExtrait = extraireCorpsTexte(donneesPourCompositionActeTexte);
+        if (texteExtrait) {
+          setCorpsTexteExtrait(texteExtrait);
+        }
+
+        // Générer le PDF
         compositionApi
           .getCompositionActeTexte(donneesPourCompositionActeTexte)
           .then(dataComposition => setContenuActe(dataComposition.body.data.contenu ?? ""));
@@ -80,18 +110,19 @@ const OngletActe: React.FC<IOngletActeProps> = ({ estActif }) => {
           erreurs
         })
     });
-  }, [idActe, estActeSigne]);
+  }, [idActe, estActeSigne, extraireCorpsTexte]);
 
-  const aCorpsTexte = acte?.corpsTexte?.texte && acte.corpsTexte.texte.trim().length > 0;
+  // Utiliser le corpsTexte extrait depuis l'endpoint de composition
+  const aCorpsTexte = corpsTexteExtrait && corpsTexteExtrait.trim().length > 0;
 
   const copierTexte = useCallback(() => {
-    if (acte?.corpsTexte?.texte) {
-      navigator.clipboard.writeText(acte.corpsTexte.texte).then(() => {
+    if (corpsTexteExtrait) {
+      navigator.clipboard.writeText(corpsTexteExtrait).then(() => {
         setCopie(true);
         setTimeout(() => setCopie(false), 2000);
       });
     }
-  }, [acte?.corpsTexte?.texte]);
+  }, [corpsTexteExtrait]);
 
   return (
     <OngletsContenu estActif={estActif}>
@@ -150,7 +181,7 @@ const OngletActe: React.FC<IOngletActeProps> = ({ estActif }) => {
               className={`flex-1 cursor-text overflow-y-auto whitespace-pre-wrap p-4 font-mono text-sm leading-relaxed text-gray-800 transition-colors ${highlight ? "bg-blue-50" : "bg-white"}`}
               onMouseUp={handleMouseUp}
             >
-              {acte.corpsTexte.texte}
+              {corpsTexteExtrait}
             </div>
           </div>
         ) : (
